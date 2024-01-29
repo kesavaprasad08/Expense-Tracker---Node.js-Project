@@ -1,5 +1,13 @@
 const User = require('../models/user');
 
+exports.getLoginPage = async(req,res,next)=>{
+    try {
+        res.sendFile("login.html", { root: "views" });
+      } catch (e) {
+        res.status(500).json({ error: e });
+      }
+}
+
 
 exports.addUser = async(req,res,next)=>{
     try{
@@ -26,4 +34,34 @@ exports.addUser = async(req,res,next)=>{
     catch(e){
         console.log(e);
     }
+}
+
+exports.loginUser = async(req,res,next)=>{
+    try{
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const check = await User.findAll({
+        attributes:['Name','Email','Password'],
+        where:{
+            Email:email,
+        }
+    });
+    
+    if(check.length !== 0){
+        if(check[0].dataValues.Password === password){
+        res.status(200).json({message:'user found'})
+        }else{
+            res.status(200).json({message:'Incorrect Password'})
+        }
+        
+   
+    }else{
+        res.status(200).json({message:'User not found'})
+    }
+
+}
+catch(e){
+    console.log(e)
+}
 }
