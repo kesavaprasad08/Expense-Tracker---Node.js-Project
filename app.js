@@ -6,33 +6,26 @@ const cors = require("cors");
 
 const homePage = require("./routes/home");
 
-// const sequelize = require("./util/database");
+const sequelize = require("./util/database");
 
 const app = express();
+const userRoutes = require("./routes/user");
 
-// const attendanceRoutes = require("./routes/attendance");
-const userRoutes = require('./routes/user');
-
-// const Attendance = require('./models/attendance');
-// const Students = require('./models/students');
+const User = require("./models/user");
 
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// app.use(cors());
+app.use(cors());
 
 app.use(express.static("public"));
-// app.use("/attendance", attendanceRoutes);
-app.use("/user",userRoutes);
+app.use("/user", userRoutes);
 app.use(homePage);
 
-// Students.hasMany(Attendance);
-// Attendance.belongsTo(Students);
-
-// sequelize
-//   .sync({ force: false })
-//   .then(() => {
+sequelize
+  .sync({ force: false })
+  .then(() => {
     app.listen(3000);
-//   })
-//   .catch((e) => console.log(e));
+  })
+  .catch((e) => console.log(e));

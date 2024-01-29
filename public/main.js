@@ -1,3 +1,5 @@
+
+
 const signUpSubmitForm = document.getElementById('signUpForm');
 
 const signUpHandler = async(e) =>{
@@ -7,16 +9,27 @@ const signUpHandler = async(e) =>{
     const password=document.getElementById('signUpPassword').value;
     const email =document.getElementById('signUpEmail').value;
 
-const response = await axios.post(`http://localhost:3000/user/signup`,{
-    name,
-    password,
-    email
-})
+  
+    
+        const response = await axios.post(`http://localhost:3000/user/signup`,{
+            name,
+            password,
+            email
+        })
+        document.getElementById('signUpName').value='';
+        document.getElementById('signUpPassword').value='';
+        document.getElementById('signUpEmail').value='';
+        
+            
 
-    console.log(response.data);
     }
     catch(e){
-        console.log(e);
+        // console.log(e);
+            if (e.response.status=== 403){
+                const ele = document.getElementById('ErorMessage');
+                ele.className +='block';
+            }
+{}
     }
 }
 
