@@ -52,12 +52,12 @@ exports.loginUser = async(req,res,next)=>{
         if(check[0].dataValues.Password === password){
         res.status(200).json({message:'user found'})
         }else{
-            res.status(200).json({message:'Incorrect Password'})
+            res.status(401).json({message:'User not authorized'})
         }
         
    
     }else{
-        res.status(200).json({message:'User not found'})
+        res.status(404).json({message:'User not found'})
     }
 
 }
