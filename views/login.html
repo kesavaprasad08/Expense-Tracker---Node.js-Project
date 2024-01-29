@@ -63,21 +63,17 @@
               password,
             }
           );
-
           if (response.data.message === "user found") {
             window.alert("User Logged in Successfully");
-          } else if (response.data.message === "Incorrect Password") {
-            err.className += "block";
-            err.innerHTML = response.data.message;
           }
         } catch (e) {
           if (e.response.status === 404) {
             err.className += "block";
             err.innerHTML = e.response.data.message;
-          }else if(e.response.status === 401){
-            
+          } else {
             err.className += "block";
-            err.innerHTML = e.response.data.message+' due to incorrect Password';
+            err.innerHTML =
+              e.response.data.message + " due to incorrect Password";
           }
         }
       };
