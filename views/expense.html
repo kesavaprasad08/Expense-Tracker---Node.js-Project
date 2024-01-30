@@ -106,8 +106,14 @@ catch(e){
     console.log(e);
 }
       }
-      const handler = (id) =>{
-            console.log(id)
+      const handler = async(id) =>{
+        try{
+            const response = await axios.delete(`http://localhost:3000/expense/delete-expense/${id}`);
+            fetchExpenses();
+        }
+        catch(e){
+            console.log(e)
+        }
         }
         
         addExpenseForm.addEventListener('submit',submitHandler)

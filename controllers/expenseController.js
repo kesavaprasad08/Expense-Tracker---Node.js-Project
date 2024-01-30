@@ -35,4 +35,15 @@ exports.getExpense = async(req,res,next)=>{
     catch(e){
         res.status(500).json({message:e})
     }
+};
+
+exports.deleteExpense = async(req,res,next)=>{
+    try{
+    const id =req.params.id;
+    const del = await Expense.destroy({where:{id:id}});
+    res.status(200).json({message:'deleted Successfully'})
+    }
+    catch(err){
+        res.status(500).json({message:err.message})
+    }
 }
