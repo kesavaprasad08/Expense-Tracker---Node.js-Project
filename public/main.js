@@ -24,9 +24,10 @@ const signUpHandler = async(e) =>{
 
     }
     catch(e){
-        // console.log(e);
-            if (e.response.status=== 403){
-                const ele = document.getElementById('ErorMessage');
+      
+            if (e.response.status === 403){
+            
+                const ele = document.getElementById('ErrorMessage');
                 ele.className +='block';
             }
 {}

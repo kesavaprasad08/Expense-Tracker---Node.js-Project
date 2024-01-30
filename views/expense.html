@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker</title>
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="flex bg-teal-600 text-white h-16 items-center p-5">
+      <p class="text-lg font-semibold">Expense Tracker</p>
+    </header>
+    <div class="flex p-5 content-center justify-center">
+      <div class="flex flex-col w-11/12 items-center shadow-lg">
+        <p class="text-center text-teal-600 mb-5 text-lg font-semibold">
+          Add Expense
+        </p>
+        <form class="flex flex-wrap p-2" id="AddExpenseForm">
+            <div>
+          <label class="pt-2 mr-2">Choose Expense Amount : Rs. </label>
+          <input
+            type="number"
+            class="border mr-2"
+            placeholder="Enter amount"
+            required
+            id="expenseAmount"
+            name="expenseAmount"
+          />
+        </div>
+        <div>
+          <label class="pt-2 mr-2">Enter Description</label>
+          <input
+            type="text"
+            class="border mr-2"
+            placeholder="Description"
+            required
+            id="Description"
+            name="Description"
+          />
+        </div>
+        <div>
+          <label class="pt-2 mr-2">Choose A Category</label>
+          <select name="Category" class="mr-2 border" id="Category">
+            <option value="Fuel">Fuel</option>
+            <option value="Food">Food</option>
+            <option value="Electricity">Electricity</option>
+            <option value="Movie">Movie</option>
+          </select>
+        </div>
+          <button
+            type="submit"
+            class="text-white bg-teal-600 p-1"
+            id="SubmitButton"
+          >
+            Add Expense
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="flex ml-20 mt-5 ">
+        
+    <ul id="listOfExpenses" class=" ">
+    
+</ul>
+</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script>
+      const addExpenseForm = document.getElementById('AddExpenseForm');
+      const expenseList = document.getElementById('listOfExpenses');
+
+      const submitHandler = async(e) => {
+        try{
+        e.preventDefault();
+        const expenseAmount = document.getElementById('expenseAmount').value;
+        const Description = document.getElementById('Description').value;
+        const Category = document.getElementById('Category').value;
+
+        const response =await axios.post('http://localhost:3000/expense/add-expense',{
+            amount:expenseAmount,
+            description:Description,
+            category:Category,
+        })
+        // console.log('expense added ')
+        fetchExpenses();
+        }
+        catch(e){
+
+        }
+      }
+      const fetchExpenses = async() => {
+try{
+    expenseList.innerHTML='';
+    const response = await axios.get('http://localhost:3000/expense/get-expense');
+    response.data.forEach(ele =>{
+        const listItem = document.createElement("li");
+        listItem.className='flex shadow-lg p-3' 
+        listItem.innerHTML = ` <div class='flex'>${ele.expenseAmount} - ${ele.description} - ${ele.category}  <div> <button onclick='handler(${ele.id})' class='text-white ml-5 bg-red-500 p-1 rounded' id=${ele.id}>Delete Expense</button>`;
+        expenseList.appendChild(listItem);
+
+    })
+}
+catch(e){
+    console.log(e);
+}
+      }
+      const handler = (id) =>{
+            console.log(id)
+        }
+        
+        addExpenseForm.addEventListener('submit',submitHandler)
+        window.addEventListener('DOMContentLoaded',fetchExpenses)
+
+    </script>
+  </body>
+</html>
