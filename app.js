@@ -26,6 +26,8 @@ app.use("/user", userRoutes);
 app.use('/expense', expenseRoutes);
 app.use(homePage);
 
+User.hasMany(Expense);
+Expense.belongsTo(User);
 sequelize
   .sync({ force: false })
   .then(() => {

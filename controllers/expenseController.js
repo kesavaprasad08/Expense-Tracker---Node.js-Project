@@ -18,6 +18,7 @@ exports.addExpense = async(req,res,next) =>{
             expenseAmount:expAmt,
             description:des,
             category:cat,
+            UserId:req.user.id
         });
         return res.status(200).json({message:'Expense Added'})
 
@@ -29,10 +30,14 @@ console.log(e);
 
 exports.getExpense = async(req,res,next)=>{
     try{
-        const expenses = await Expense.findAll();
+        console.log(req.user.id)
+        const expenses = await Expense.findAll({where:{UserId:req.user.id}});
+
+// console.log(expenses)
         res.status(200).json(expenses)
     }
     catch(e){
+        console.log(e)
         res.status(500).json({message:e})
     }
 };

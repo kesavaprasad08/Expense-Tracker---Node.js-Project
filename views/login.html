@@ -66,6 +66,8 @@
           if (response.data.message === "user found") {
             window.alert("User Logged in Successfully");
             window.location.href= '/expense';
+            console.log(response.data)
+            localStorage.setItem('token',response.data.token);
           }
         } catch (e) {
           if (e.response.status === 404) {
@@ -78,6 +80,18 @@
           }
         }
       };
+      // window.addEventListener("DOMContentLoaded",()=>{
+      //   // console.log('done')
+      //   const token = localStorage.getItem('token');
+      //   console.log(token);
+      //   axios.get('http://localhost:3000/expense/get-expense',{headers:{'Authorization':token}}).then(res =>{
+      //     console.log('res',res)
+      //   })
+      //   .catch(e=>{
+      //     console.log(e)
+      //   }
+      //   )
+      // })
 
       SubmitButton.addEventListener("submit", LoginHandler);
     </script>

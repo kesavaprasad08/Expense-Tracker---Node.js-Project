@@ -60,7 +60,7 @@
         </form>
       </div>
     </div>
-    <div class="flex ml-20 mt-5 ">
+    <div class="flex justify-center lg:justify-normal mt-5 ">
         
     <ul id="listOfExpenses" class=" ">
     
@@ -78,11 +78,14 @@
         const Description = document.getElementById('Description').value;
         const Category = document.getElementById('Category').value;
 
+        const token = localStorage.getItem('token');
+
         const response =await axios.post('http://localhost:3000/expense/add-expense',{
             amount:expenseAmount,
             description:Description,
             category:Category,
-        })
+            
+        },{headers:{"Authorization":token}})
         // console.log('expense added ')
         fetchExpenses();
         }
@@ -90,21 +93,23 @@
 
         }
       }
-      const fetchExpenses = async() => {
-try{
-    expenseList.innerHTML='';
-    const response = await axios.get('http://localhost:3000/expense/get-expense');
-    response.data.forEach(ele =>{
-        const listItem = document.createElement("li");
+      const fetchExpenses = () => {
+        const token = localStorage.getItem('token');
+        // console.log(token);
+        expenseList.innerHTML='';
+        axios.get('http://localhost:3000/expense/get-expense',{ headers: {"Authorization":token}}).then(res =>{
+          // console.log('res',res.data)
+          res.data.forEach(ele =>{
+            const listItem = document.createElement("li");
         listItem.className='flex shadow-lg p-3' 
         listItem.innerHTML = ` <div class='flex'>${ele.expenseAmount} - ${ele.description} - ${ele.category}  <div> <button onclick='handler(${ele.id})' class='text-white ml-5 bg-red-500 p-1 rounded' id=${ele.id}>Delete Expense</button>`;
         expenseList.appendChild(listItem);
-
-    })
-}
-catch(e){
-    console.log(e);
-}
+          })
+        })
+        .catch(e=>{
+          console.log(e)
+        }
+        )
       }
       const handler = async(id) =>{
         try{

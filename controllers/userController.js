@@ -1,6 +1,11 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+function generateAccessToken(id,name){
+    console.log(id,name)
+return jwt.sign({userId:id,name:name},'abc')
+}
 
 exports.getLoginPage = async(req,res,next)=>{
     try {
@@ -48,11 +53,12 @@ exports.loginUser = async(req,res,next)=>{
     const password = req.body.password;
 
     const check = await User.findAll({
-        attributes:['Name','Email','Password'],
+        attributes:['id','Name','Email','Password'],
         where:{
             Email:email,
         }
     });
+    // console.log(check[0].dataValues,'checkkkkkkkkkkk')
     
     if(check.length !== 0){
         bcrypt.compare(password,check[0].dataValues.Password,(err,result)=>{
@@ -61,7 +67,7 @@ exports.loginUser = async(req,res,next)=>{
                 res.status(500).json({message:'User not authorized'})
             }
             if(result){
-                res.status(200).json({message:'user found'})
+                res.status(200).json({message:'user found',token:generateAccessToken(check[0].dataValues.id,check[0].dataValues.Name)})
             }
         
         })
