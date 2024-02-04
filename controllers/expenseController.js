@@ -30,8 +30,9 @@ console.log(e);
 
 exports.getExpense = async(req,res,next)=>{
     try{
-        console.log(req.user.id)
+        // console.log(req.user,'userud')
         const expenses = await Expense.findAll({where:{UserId:req.user.id}});
+        // const expenses = await Expense.findAll();
 
 // console.log(expenses)
         res.status(200).json(expenses)
@@ -45,8 +46,14 @@ exports.getExpense = async(req,res,next)=>{
 exports.deleteExpense = async(req,res,next)=>{
     try{
     const id =req.params.id;
-    const del = await Expense.destroy({where:{id:id}});
+    const del = await Expense.destroy({where:{id:id, UserId:req.user.id}});
+    // console.log(del,'delete')
+    if(del==1){
     res.status(200).json({message:'deleted Successfully'})
+    }
+    else {
+         res.status(200).json({message:'wrong user'})
+    }
     }
     catch(err){
         res.status(500).json({message:err.message})

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 function generateAccessToken(id,name){
-    console.log(id,name)
+    // console.log(id,name)
 return jwt.sign({userId:id,name:name},'abc')
 }
 
@@ -29,11 +29,12 @@ exports.addUser = async(req,res,next)=>{
         });
         if(check.length === 0){
             bcrypt.hash(password,10,async(err,hash)=>{
-                console.log(err);
+                // console.log(err);
                 await User.create({
                     Name:name,
                     Email:email,
                     Password:hash,
+                    isPremiumMember:false,
                 })
                 res.status(200).json({message:'User Added'})
             })

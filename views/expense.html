@@ -10,8 +10,14 @@
     />
   </head>
   <body>
-    <header class="flex bg-teal-600 text-white h-16 items-center p-5">
+    <header
+      class="flex justify-between bg-teal-600 text-white h-16 items-center p-5"
+    >
       <p class="text-lg font-semibold">Expense Tracker</p>
+      <p class="hidden" id="premiumMemberStatus">You are a Premium Member !</p>
+      <button class="bg-yellow-600 border p-2" id="preBtn">
+        Buy Premium Membership
+      </button>
     </header>
     <div class="flex p-5 content-center justify-center">
       <div class="flex flex-col w-11/12 items-center shadow-lg">
@@ -19,37 +25,37 @@
           Add Expense
         </p>
         <form class="flex flex-wrap p-2" id="AddExpenseForm">
-            <div>
-          <label class="pt-2 mr-2">Choose Expense Amount : Rs. </label>
-          <input
-            type="number"
-            class="border mr-2"
-            placeholder="Enter amount"
-            required
-            id="expenseAmount"
-            name="expenseAmount"
-          />
-        </div>
-        <div>
-          <label class="pt-2 mr-2">Enter Description</label>
-          <input
-            type="text"
-            class="border mr-2"
-            placeholder="Description"
-            required
-            id="Description"
-            name="Description"
-          />
-        </div>
-        <div>
-          <label class="pt-2 mr-2">Choose A Category</label>
-          <select name="Category" class="mr-2 border" id="Category">
-            <option value="Fuel">Fuel</option>
-            <option value="Food">Food</option>
-            <option value="Electricity">Electricity</option>
-            <option value="Movie">Movie</option>
-          </select>
-        </div>
+          <div>
+            <label class="pt-2 mr-2">Choose Expense Amount : Rs. </label>
+            <input
+              type="number"
+              class="border mr-2"
+              placeholder="Enter amount"
+              required
+              id="expenseAmount"
+              name="expenseAmount"
+            />
+          </div>
+          <div>
+            <label class="pt-2 mr-2">Enter Description</label>
+            <input
+              type="text"
+              class="border mr-2"
+              placeholder="Description"
+              required
+              id="Description"
+              name="Description"
+            />
+          </div>
+          <div>
+            <label class="pt-2 mr-2">Choose A Category</label>
+            <select name="Category" class="mr-2 border" id="Category">
+              <option value="Fuel">Fuel</option>
+              <option value="Food">Food</option>
+              <option value="Electricity">Electricity</option>
+              <option value="Movie">Movie</option>
+            </select>
+          </div>
           <button
             type="submit"
             class="text-white bg-teal-600 p-1"
@@ -60,70 +66,121 @@
         </form>
       </div>
     </div>
-    <div class="flex justify-center lg:justify-normal mt-5 ">
-        
-    <ul id="listOfExpenses" class=" ">
-    
-</ul>
-</div>
+    <div class="flex justify-center lg:justify-normal mt-5">
+      <ul id="listOfExpenses" class=" "></ul>
+    </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script>
-      const addExpenseForm = document.getElementById('AddExpenseForm');
-      const expenseList = document.getElementById('listOfExpenses');
+      const addExpenseForm = document.getElementById("AddExpenseForm");
+      const expenseList = document.getElementById("listOfExpenses");
+      const premiumBtn = document.getElementById("preBtn");
+      const premiumMemberStatus = document.getElementById('premiumMemberStatus');
 
-      const submitHandler = async(e) => {
-        try{
-        e.preventDefault();
-        const expenseAmount = document.getElementById('expenseAmount').value;
-        const Description = document.getElementById('Description').value;
-        const Category = document.getElementById('Category').value;
+      const token = localStorage.getItem("token");
 
-        const token = localStorage.getItem('token');
+      premiumBtn.addEventListener("click", async (e) => {
+        try {
+          const response = await axios.get('http://localhost:3000/purchase/premiumMembership',{ headers:{ Authorization:token}})
+          console.log(response)
+          const options = {
+            key:response.data.key_id,
+            order_id:response.data.order.id,
+            handler:async(res)=>{
+              const curr = await axios.post("http://localhost:3000/purchase/updateTransactionStatus",{
+                order_id:options.order_id,
+                payment_id:res.razorpay_payment_id,
+              },{
+                headers:{Authorization:token}
+              });
+              if(curr.data.message === 'Transaction SuccessFul'){
+              alert("you are a premium user now");
+              premiumBtn.className='hidden';
+              premiumMemberStatus.className='bg-yellow-600 p-2'
+              }else{
+                alert('Transaction Failed')
+              }
+            }
+          }
+          const rzpy =  new Razorpay(options);
+          rzpy.open();
+          e.preventDefault();
 
-        const response =await axios.post('http://localhost:3000/expense/add-expense',{
-            amount:expenseAmount,
-            description:Description,
-            category:Category,
-            
-        },{headers:{"Authorization":token}})
-        // console.log('expense added ')
-        fetchExpenses();
+          rzpy.on("payment failed", async(r)=>{
+            const failed = await axios.post( "http://localhost:3000/purchase/updateTransactionStatus",{
+              order_id:options.order_id,
+            },{
+              headers:{Authorization:token}
+            }
+            );
+            console.log(
+              "Razorpay response --->",
+      r,
+      "Server response ---->",
+      failed
+            );
+            alert(failed.data.message);
+          });
+
+        } catch (err) {
+          console.log(err);
         }
-        catch(e){
+      });
 
-        }
-      }
+      const submitHandler = async (e) => {
+        try {
+          e.preventDefault();
+          const expenseAmount = document.getElementById("expenseAmount").value;
+          const Description = document.getElementById("Description").value;
+          const Category = document.getElementById("Category").value;
+          const response = await axios.post(
+            "http://localhost:3000/expense/add-expense",
+            {
+              amount: expenseAmount,
+              description: Description,
+              category: Category,
+            },
+            { headers: { Authorization: token } }
+          );
+          fetchExpenses();
+        } catch (e) {}
+      };
       const fetchExpenses = () => {
-        const token = localStorage.getItem('token');
-        // console.log(token);
-        expenseList.innerHTML='';
-        axios.get('http://localhost:3000/expense/get-expense',{ headers: {"Authorization":token}}).then(res =>{
-          // console.log('res',res.data)
-          res.data.forEach(ele =>{
-            const listItem = document.createElement("li");
-        listItem.className='flex shadow-lg p-3' 
-        listItem.innerHTML = ` <div class='flex'>${ele.expenseAmount} - ${ele.description} - ${ele.category}  <div> <button onclick='handler(${ele.id})' class='text-white ml-5 bg-red-500 p-1 rounded' id=${ele.id}>Delete Expense</button>`;
-        expenseList.appendChild(listItem);
+        expenseList.innerHTML = "";
+        axios
+          .get("http://localhost:3000/expense/get-expense", {
+            headers: { Authorization: token },
           })
-        })
-        .catch(e=>{
-          console.log(e)
-        }
-        )
-      }
-      const handler = async(id) =>{
-        try{
-            const response = await axios.delete(`http://localhost:3000/expense/delete-expense/${id}`);
-            fetchExpenses();
-        }
-        catch(e){
-            console.log(e)
-        }
-        }
-        
-        addExpenseForm.addEventListener('submit',submitHandler)
-        window.addEventListener('DOMContentLoaded',fetchExpenses)
+          .then((res) => {
+            res.data.forEach((ele) => {
+              const listItem = document.createElement("li");
+              listItem.className = "flex shadow-lg p-3";
+              listItem.innerHTML = ` <div class='flex'>${ele.expenseAmount} - ${ele.description} - ${ele.category}  <div> <button onclick='handler(${ele.id})' class='text-white ml-5 bg-red-500 p-1 rounded' id=${ele.id}>Delete Expense</button>`;
+              expenseList.appendChild(listItem);
+            });
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      };
+      const handler = async (id) => {
+        try {
+          const response = await axios.delete(
+            `http://localhost:3000/expense/delete-expense/${id}`,
+            { headers: { Authorization: token } }
+          );
+          if (response.data.message === "wrong user") {
+            console.log(response.data.message);
+          }
 
+          fetchExpenses();
+        } catch (e) {
+          console.log(e);
+        }
+      };
+
+      addExpenseForm.addEventListener("submit", submitHandler);
+      window.addEventListener("DOMContentLoaded", fetchExpenses);
     </script>
   </body>
 </html>
