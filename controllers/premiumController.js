@@ -18,8 +18,8 @@ exports.showLeaderBoard = async(req,res,next)=>{
                 },
             ],
             group:['id'],
+            order:[['total_amount','DESC']]
         });
-        // console.log('expenseList => ',expenseList)
         res.status(200).json({expenseList});
     }
     catch(err){

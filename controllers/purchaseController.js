@@ -13,7 +13,6 @@ const generateAccessToken = (id, isPremiumMember) => {
 
 exports.purchasePremium = (req, res, next) => {
   try {
-    // console.log(process.env.RAZORPAY_KEY_sECRET,'process.env.RAZORPAY_KEY_ID')
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_sECRET,
@@ -26,7 +25,6 @@ exports.purchasePremium = (req, res, next) => {
         console.log(err);
         throw new Error(JSON.stringify(err));
       }
-      // console.log(order.id)
       Order.create({ orderId: order.id, status: "PENDING" })
         .then(() => {
           return res.status(200).json({ order, key_id: razorpay.key_id });
@@ -42,10 +40,8 @@ exports.purchasePremium = (req, res, next) => {
 };
 
 exports.updateTransactionStatus = async (req, res, next) => {
-  // console.log('in update transsactions', req.body);
   const { payment_id, order_id } = req.body;
   try {
-    // console.log('in')
     const order = await Order.findOne({ where: { orderId: order_id } });
     if (!payment_id) {
       order.update({ status: "FAILED" }).then(() => {
@@ -61,12 +57,13 @@ exports.updateTransactionStatus = async (req, res, next) => {
       const user = await User.findByPk(req.user.id);
       user.isPremiumMember = true;
       const userUpdate = await user.save();
-      // console.log('here',userUpdate)
       Promise.all([promise1, userUpdate])
         .then(() => {
-          return res
-            .status(202)
-            .json({ success: true, message: "Transaction SuccessFul",token:generateAccessToken(req.user.id,true)});
+          return res.status(202).json({
+            success: true,
+            message: "Transaction SuccessFul",
+            token: generateAccessToken(req.user.id, true),
+          });
         })
         .catch((err) => {
           console.log(err);

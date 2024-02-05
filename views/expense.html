@@ -69,7 +69,6 @@
     </div>
     <div class="flex justify-center lg:justify-normal mt-5">
       <ul id="listOfExpenses" class=" "></ul>
-      
     </div>
     <div id="list-body" class=""></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -115,9 +114,7 @@
         <tbody id='leader-list'>
         </tbody>
       </table> </div>`;
-      response.data.expenseList.sort((a,b)=>b.total_amount-a.total_amount)
             response.data.expenseList.map((leader) => {
-              // console.log(response.data)
               document.getElementById("leader-list").innerHTML += `<tr>
         <td>${leader.Name}</td>
         <td>${leader.total_amount || 0}</td>
@@ -218,7 +215,7 @@
             headers: { Authorization: token },
           })
           .then((res) => {
-            console.log(res.data)
+            console.log(res.data);
             res.data.expenses.forEach((ele) => {
               const listItem = document.createElement("li");
               listItem.className = "flex shadow-lg p-3";
@@ -232,7 +229,7 @@
       };
       const handler = async (id) => {
         try {
-          console.log(id)
+          console.log(id);
           const response = await axios.delete(
             `http://localhost:3000/expense/delete-expense/${id}`,
             { headers: { Authorization: token } }
@@ -259,12 +256,11 @@
               showPremiumMessage();
               showLeaderBoard();
             }
-            // console.log(res.data,'res.data');
-            if(res.data.expenses.length>0){
-            res.data.expenses.forEach((exp) => {
-              addExpenseToList(exp)
-            });
-          }
+            if (res.data.expenses.length > 0) {
+              res.data.expenses.forEach((exp) => {
+                addExpenseToList(exp);
+              });
+            }
           });
       });
     </script>
