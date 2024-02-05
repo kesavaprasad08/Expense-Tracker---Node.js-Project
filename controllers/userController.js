@@ -32,6 +32,7 @@ exports.addUser = async (req, res, next) => {
           Email: email,
           Password: hash,
           isPremiumMember: false,
+          totalExpenses:0,
         });
         res.status(200).json({ message: "User Added" });
       });

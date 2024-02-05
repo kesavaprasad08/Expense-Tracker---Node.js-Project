@@ -117,7 +117,7 @@
             response.data.expenseList.map((leader) => {
               document.getElementById("leader-list").innerHTML += `<tr>
         <td>${leader.Name}</td>
-        <td>${leader.total_amount || 0}</td>
+        <td>${leader.totalExpenses || 0}</td>
       </tr>`;
             });
           } catch (e) {
@@ -215,7 +215,6 @@
             headers: { Authorization: token },
           })
           .then((res) => {
-            console.log(res.data);
             res.data.expenses.forEach((ele) => {
               const listItem = document.createElement("li");
               listItem.className = "flex shadow-lg p-3";

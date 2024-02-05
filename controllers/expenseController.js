@@ -20,6 +20,11 @@ exports.addExpense = async (req, res, next) => {
       category: cat,
       UserId: req.user.id,
     });
+    const user = await User.findOne({where:{id:req.user.id}})
+    // console.log(user.totalExpenses,'eruireniuiveruim')
+    user.totalExpenses= Number(user.totalExpenses)+Number(expAmt);
+    await user.save();
+    
     return res.status(200).json({ message: "Expense Added" });
   } catch (e) {
     console.log(e);
@@ -28,6 +33,7 @@ exports.addExpense = async (req, res, next) => {
 
 exports.getExpense = async (req, res, next) => {
   try {
+    // console.log(req.user)
     const expenses = await Expense.findAll({ where: { UserId: req.user.id } });
     const userRes = await User.findOne({ where: { id: req.user.id } });
     res.status(200).json({ expenses: expenses, user: userRes.isPremiumMember });

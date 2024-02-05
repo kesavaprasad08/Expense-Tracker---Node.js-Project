@@ -36,7 +36,7 @@ app.use(homePage);
 User.hasMany(Expense);
 Expense.belongsTo(User);
 sequelize
-  .sync({ force: false })
+  .sync({ force: true })
   .then(() => {
     app.listen(3000);
   })
