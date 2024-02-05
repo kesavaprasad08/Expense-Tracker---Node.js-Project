@@ -20,6 +20,7 @@ const signUpHandler = async(e) =>{
         document.getElementById('signUpPassword').value='';
         document.getElementById('signUpEmail').value='';
         window.alert('User Added Successfully');
+        window.location.href='/user/login'
             
 
     }

@@ -1,4 +1,5 @@
 const Expense = require("../models/expense");
+const User = require("../models/user");
 
 exports.getExpensePage = async(req,res,next) =>{
 try{
@@ -32,10 +33,11 @@ exports.getExpense = async(req,res,next)=>{
     try{
         // console.log(req.user,'userud')
         const expenses = await Expense.findAll({where:{UserId:req.user.id}});
+        const userRes = await User.findOne({where:{id:req.user.id}})
         // const expenses = await Expense.findAll();
 
 // console.log(expenses)
-        res.status(200).json(expenses)
+        res.status(200).json({expenses:expenses, user:userRes.isPremiumMember})
     }
     catch(e){
         console.log(e)
