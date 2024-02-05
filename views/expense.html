@@ -228,7 +228,6 @@
       };
       const handler = async (id) => {
         try {
-          console.log(id);
           const response = await axios.delete(
             `http://localhost:3000/expense/delete-expense/${id}`,
             { headers: { Authorization: token } }
