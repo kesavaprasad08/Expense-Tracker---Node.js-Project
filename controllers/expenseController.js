@@ -126,7 +126,6 @@ exports.downloadExpense = async (req, res, next) => {
 };
 exports.getExpensesForPagination = async (req, res, next) => {
   try {
-    console.log(req.query,'requessssssssssssssssttttttttt wefiiiiiij')
     const pageNo = parseInt(req.query.page);
     const limit =parseInt(req.query.limit);
     const offset = (pageNo - 1) * limit;
