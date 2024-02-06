@@ -14,7 +14,7 @@ router.post(
 );
 
 router.get(
-  "/get-expense/:page",
+  "/get-expense/",
   userAuthentication.authenticate,
   expenseController.getExpensesForPagination
 );

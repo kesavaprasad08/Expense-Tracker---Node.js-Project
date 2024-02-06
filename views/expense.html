@@ -67,7 +67,23 @@
         </form>
       </div>
     </div>
-    <div class="flex justify-center lg:justify-normal mt-5">
+    
+    <div class="flex justify-center">
+      <p class="text-center">List Of Expenses </p>
+    <div class=" flex items-center  ml-5">
+      <label>Rows Per Page : </label>
+      <select name="limit" id="limit">
+        <option value="4">4</option>
+        <option value="7">7</option>
+        <option value="10">10</option>
+        <option value="13">13</option>
+        <option value="16">16</option>
+      </select>
+    </div>
+    </div>
+
+    <div class="flex justify-center items-center lg:justify-normal mt-5">
+      
       <ul id="listOfExpenses" class=" "></ul>
     </div>
     <div id="list-body" class=""></div>
@@ -92,7 +108,18 @@
       const listBody = document.getElementById("list-body");
       const DownloadBtn = document.getElementById("DownloadFileBtn");
 
+      localStorage.setItem('limit',JSON.stringify(4))
+
+      let limit  = JSON.parse(localStorage.getItem('limit'))
+      document.getElementById('limit').value=limit;
+
       const token = localStorage.getItem("token");
+
+      document.getElementById('limit').addEventListener('click',(e)=>{
+        limit=document.getElementById('limit').value;
+        localStorage.setItem('limit',JSON.stringify(limit))
+        fetchingExpenses(e)
+      }) 
 
       const showPremiumMessage = () => {
         premiumBtn.className = "hidden";
@@ -233,9 +260,9 @@
           console.log(e);
         }
       };
-      const fetchingExpenses = (e) => {
+      function fetchingExpenses  (e) {
         axios
-          .get("http://localhost:3000/expense/get-expense/1", {
+          .get(`http://localhost:3000/expense/get-expense/?page=${1}&limit=${limit}`, {
             headers: { Authorization: token },
           })
           .then((res) => {
@@ -263,7 +290,7 @@
       const pagination = async (e) => {
         try {
           const response = await axios(
-            `http://localhost:3000/expense/get-expense/${e}`,
+            `http://localhost:3000/expense/get-expense?page=${e}&limit=${limit}`,
             {
               headers: {
                 Authorization: token,
