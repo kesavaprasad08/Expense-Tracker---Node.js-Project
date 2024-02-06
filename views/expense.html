@@ -71,9 +71,15 @@
       <ul id="listOfExpenses" class=" "></ul>
     </div>
     <div id="list-body" class=""></div>
+    <ul id="paginationList" class="flex justify-center"></ul>
     <div class="mt-5 flex justify-center">
-    <button class="text-white ml-5 bg-blue-500 p-1 rounded" id="DownloadFileBtn">Download File</button>
-  </div>
+      <button
+        class="text-white ml-5 bg-blue-500 p-1 rounded"
+        id="DownloadFileBtn"
+      >
+        Download File
+      </button>
+    </div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script>
@@ -84,8 +90,7 @@
         "premiumMemberStatus"
       );
       const listBody = document.getElementById("list-body");
-      const DownloadBtn = document.getElementById('DownloadFileBtn');
-
+      const DownloadBtn = document.getElementById("DownloadFileBtn");
 
       const token = localStorage.getItem("token");
 
@@ -210,26 +215,8 @@
             },
             { headers: { Authorization: token } }
           );
-          fetchExpenses();
+          fetchingExpenses();
         } catch (e) {}
-      };
-      const fetchExpenses = () => {
-        expenseList.innerHTML = "";
-        axios
-          .get("http://localhost:3000/expense/get-expense", {
-            headers: { Authorization: token },
-          })
-          .then((res) => {
-            res.data.expenses.forEach((ele) => {
-              const listItem = document.createElement("li");
-              listItem.className = "flex shadow-lg p-3";
-              listItem.innerHTML = ` <div class='flex'>${ele.expenseAmount} - ${ele.description} - ${ele.category}  <div> <button onclick='handler(${ele.id})' class='text-white ml-5 bg-red-500 p-1 rounded' id=${ele.id}>Delete Expense</button>`;
-              expenseList.appendChild(listItem);
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-          });
       };
       const handler = async (id) => {
         try {
@@ -240,18 +227,15 @@
           if (response.data.message === "wrong user") {
             console.log(response.data.message);
           }
-
-          fetchExpenses();
+          console.log("delete");
+          fetchingExpenses();
         } catch (e) {
           console.log(e);
         }
       };
-
-      addExpenseForm.addEventListener("submit", submitHandler);
-      window.addEventListener("DOMContentLoaded", (e) => {
-        e.preventDefault();
+      const fetchingExpenses = (e) => {
         axios
-          .get("http://localhost:3000/expense/get-expense", {
+          .get("http://localhost:3000/expense/get-expense/1", {
             headers: { Authorization: token },
           })
           .then((res) => {
@@ -259,37 +243,69 @@
               showPremiumMessage();
               showLeaderBoard();
             }
+            expenseList.innerHTML = "";
             if (res.data.expenses.length > 0) {
               res.data.expenses.forEach((exp) => {
                 addExpenseToList(exp);
               });
             }
-          });
-      });
+            const ul = document.getElementById("paginationList");
+            ul.innerHTML = "";
+            for (let i = 1; i <= res.data.totalPages; i++) {
+              ul.innerHTML += `<li >
+        <button class=' m-3 p-2 rounded-full bg-teal-200' onclick="pagination(${i})">${i}</button>
+      </li>`;
+            }
+          })
+          .catch((err) => console.log(err));
+      };
 
-      DownloadBtn.addEventListener('click',async()=>{
-        try{
-       const response = await axios.get("http://localhost:3000/user/download",{
-        headers:{Authorization:token}
-       });
-       if(response.status=200){
-        let a= document.createElement('a');
-        a.href=response.data.fileUrl;
-        a.download='myexpense.csv';
-        a.click();
-       }else{
-        throw new Error(response.data.message)
-       }
-       console.log(response);
-      }
-      catch(e){
-        console.log(e)
-        if(e.response.data.fileUrl===''){
-          window.alert('Download Feature is only for Premium Users')
+      const pagination = async (e) => {
+        try {
+          const response = await axios(
+            `http://localhost:3000/expense/get-expense/${e}`,
+            {
+              headers: {
+                Authorization: token,
+              },
+            }
+          );
+          expenseList.innerHTML = "";
+          response.data.expenses.map((ex) => {
+            addExpenseToList(ex);
+          });
+        } catch (err) {
+          console.log(err);
         }
-      }
-    })
-    
+      };
+
+      addExpenseForm.addEventListener("submit", submitHandler);
+      window.addEventListener("DOMContentLoaded", fetchingExpenses(1));
+
+      DownloadBtn.addEventListener("click", async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:3000/user/download",
+            {
+              headers: { Authorization: token },
+            }
+          );
+          if ((response.status = 200)) {
+            let a = document.createElement("a");
+            a.href = response.data.fileUrl;
+            a.download = "myexpense.csv";
+            a.click();
+          } else {
+            throw new Error(response.data.message);
+          }
+          console.log(response);
+        } catch (e) {
+          console.log(e);
+          if (e.response.data.fileUrl === "") {
+            window.alert("Download Feature is only for Premium Users");
+          }
+        }
+      });
     </script>
   </body>
 </html>

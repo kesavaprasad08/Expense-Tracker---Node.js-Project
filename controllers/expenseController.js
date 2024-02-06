@@ -29,8 +29,6 @@ exports.addExpense = async (req, res, next) => {
       }
     );
     const user = await User.findOne({ where: { id: req.user.id } });
-    // user.totalExpenses= Number(user.totalExpenses)+Number(expAmt);
-    // await user.save();
     await User.update(
       { totalExpenses: Number(user.totalExpenses) + Number(expAmt) },
       { where: { id: req.user.id }, transaction: transac }
@@ -41,18 +39,6 @@ exports.addExpense = async (req, res, next) => {
   } catch (e) {
     transac.rollback();
     console.log(e);
-  }
-};
-
-exports.getExpense = async (req, res, next) => {
-  try {
-    // console.log(req.user)
-    const expenses = await Expense.findAll({ where: { UserId: req.user.id } });
-    const userRes = await User.findOne({ where: { id: req.user.id } });
-    res.status(200).json({ expenses: expenses, user: userRes.isPremiumMember });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: e });
   }
 };
 
@@ -77,7 +63,6 @@ exports.deleteExpense = async (req, res, next) => {
       Number(user.totalExpenses) -
       Number(deletedExpense.dataValues.expenseAmount);
 
-    // console.log(deletedExpense,"user total expenses")
     await user.update(
       {
         totalExpenses: updatedTotalExpenses,
@@ -116,7 +101,6 @@ const uploadToS3 = async (data, fileName) => {
         console.log(err);
         reject(err);
       } else {
-        // console.log("success", s3response);
         resolve(s3response.Location);
       }
     });
@@ -127,18 +111,38 @@ exports.downloadExpense = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await User.findByPk(userId);
-    if(!user.isPremiumMember){
-      throw new Error('Not a Premium User');
-    }
-    else{
-    const expenses = await Expense.findAll({ where: { UserId: userId } });
-    const stringifiedExpenses = JSON.stringify(expenses);
-    const fileName = `Expenses${userId}/${new Date()}.txt`;
-    const fileURL = await uploadToS3(stringifiedExpenses, fileName);
-    res.status(200).json({ fileURL });
+    if (!user.isPremiumMember) {
+      throw new Error("Not a Premium User");
+    } else {
+      const expenses = await Expense.findAll({ where: { UserId: userId } });
+      const stringifiedExpenses = JSON.stringify(expenses);
+      const fileName = `Expenses${userId}/${new Date()}.txt`;
+      const fileURL = await uploadToS3(stringifiedExpenses, fileName);
+      res.status(200).json({ fileURL });
     }
   } catch (err) {
-    // console.log(err)
-    return res.status(500).json({fileUrl:'',success:false,err:err})
+    return res.status(500).json({ fileUrl: "", success: false, err: err });
+  }
+};
+exports.getExpensesForPagination = async (req, res, next) => {
+  try {
+    const pageNo = req.params.page;
+    const limit = 7;
+    const offset = (pageNo - 1) * limit;
+    const totalExpenses = await Expense.count({
+      where: { userId: req.user.id },
+    });
+    const totalPages = Math.ceil(totalExpenses / limit);
+    const expenses = await Expense.findAll({
+      where: {
+        userId: req.user.id,
+      },
+      offset,
+      limit,
+    });
+    res.status(200).json({ success: true, expenses, totalPages });
+  } catch (err) {
+    console.log("Error in getExpensesForPagination", err);
+    res.status(500).json({ success: false, message: err });
   }
 };
