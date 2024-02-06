@@ -71,6 +71,9 @@
       <ul id="listOfExpenses" class=" "></ul>
     </div>
     <div id="list-body" class=""></div>
+    <div class="mt-5 flex justify-center">
+    <button class="text-white ml-5 bg-blue-500 p-1 rounded" id="DownloadFileBtn">Download File</button>
+  </div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script>
@@ -81,6 +84,8 @@
         "premiumMemberStatus"
       );
       const listBody = document.getElementById("list-body");
+      const DownloadBtn = document.getElementById('DownloadFileBtn');
+
 
       const token = localStorage.getItem("token");
 
@@ -261,6 +266,30 @@
             }
           });
       });
+
+      DownloadBtn.addEventListener('click',async()=>{
+        try{
+       const response = await axios.get("http://localhost:3000/user/download",{
+        headers:{Authorization:token}
+       });
+       if(response.status=200){
+        let a= document.createElement('a');
+        a.href=response.data.fileUrl;
+        a.download='myexpense.csv';
+        a.click();
+       }else{
+        throw new Error(response.data.message)
+       }
+       console.log(response);
+      }
+      catch(e){
+        console.log(e)
+        if(e.response.data.fileUrl===''){
+          window.alert('Download Feature is only for Premium Users')
+        }
+      }
+    })
+    
     </script>
   </body>
 </html>
