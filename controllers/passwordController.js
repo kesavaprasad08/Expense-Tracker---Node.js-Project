@@ -3,7 +3,7 @@ require("dotenv").config();
 
 exports.forgotPassword = async (req, res, next) => {
   try {
-    const email = req.body.email;
+    const reqEmail = req.body.email;
     let defaultClient = SibApiV3Sdk.ApiClient.instance;
     let apiKey = defaultClient.authentications["api-key"];
     apiKey.apiKey = process.env.API_KEY;
@@ -13,7 +13,7 @@ exports.forgotPassword = async (req, res, next) => {
     };
     const receivers = [
       {
-        email: email,
+        email: reqEmail,
       },
     ];
 
