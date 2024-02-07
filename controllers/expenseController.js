@@ -127,8 +127,10 @@ exports.downloadExpense = async (req, res, next) => {
 exports.getExpensesForPagination = async (req, res, next) => {
   try {
     const pageNo = parseInt(req.query.page);
-    const limit =parseInt(req.query.limit);
+    const limit =(parseInt(req.query.limit)||4);
     const offset = (pageNo - 1) * limit;
+    const user =await User.findByPk(req.user.id);
+    // console.log(user)
     const totalExpenses = await Expense.count({
       where: { userId: req.user.id },
     });
@@ -140,9 +142,9 @@ exports.getExpensesForPagination = async (req, res, next) => {
       offset,
       limit,
     });
-    res.status(200).json({ success: true, expenses, totalPages });
+    res.status(200).json({ success: true, expenses, totalPages,isPremium:user.isPremiumMember });
   } catch (err) {
     console.log("Error in getExpensesForPagination", err);
-    res.status(500).json({ success: false, message: err });
+    res.status(500).json({ success: false, message: err  });
   }
 };

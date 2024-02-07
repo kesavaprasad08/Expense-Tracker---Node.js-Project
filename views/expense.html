@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
     <title>Expense Tracker</title>
     <link
       href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
@@ -163,6 +164,7 @@
         };
       };
 
+      //premium
       const addExpenseToList = (expense) => {
         const childElement = document.createElement("tr");
         childElement.setAttribute("id", `expense-${expense._id}`);
@@ -195,6 +197,8 @@
               );
               if (curr.data.message === "Transaction SuccessFul") {
                 alert("you are a premium user now");
+                showPremiumMessage();
+                showLeaderBoard();
               } else {
                 alert("Transaction Failed");
               }
@@ -266,7 +270,8 @@
             headers: { Authorization: token },
           })
           .then((res) => {
-            if (res.data.user) {
+            // console.log(res)
+            if (res.data.isPremium) {
               showPremiumMessage();
               showLeaderBoard();
             }
@@ -319,13 +324,13 @@
           );
           if ((response.status = 200)) {
             let a = document.createElement("a");
-            a.href = response.data.fileUrl;
+            a.href = response.data.fileURL;
             a.download = "myexpense.csv";
             a.click();
           } else {
             throw new Error(response.data.message);
           }
-          console.log(response);
+          // console.log(response);
         } catch (e) {
           console.log(e);
           if (e.response.data.fileUrl === "") {

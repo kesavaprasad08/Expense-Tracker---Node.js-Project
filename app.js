@@ -34,7 +34,9 @@ const accessLogStream = fs.createWriteStream(
   { flags: "a" }
 );
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 app.use(morgan("combined",{stream:accessLogStream}));
 
 app.use(bodyParser.json());
